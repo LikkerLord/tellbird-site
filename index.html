@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tellbird – your chat, out loud</title>
+<meta name="description" content="Tellbird reads your Twitch chat aloud with a natural voice that runs on your own computer. Free, open source, no account needed. For Windows, macOS and Linux.">
+<link rel="canonical" href="https://tellbird.org/">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta name="theme-color" content="#11131f">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://tellbird.org/">
+<meta property="og:title" content="Tellbird – your chat, out loud">
+<meta property="og:description" content="Reads your Twitch chat aloud with a natural voice that runs on your own computer. Free and open source.">
+<meta property="og:image" content="https://tellbird.org/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" href="assets/fonts/nunito-900.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+  /* Fonts are served from this site (SIL Open Font License, see assets/fonts/),
+     so visitors' browsers don't contact Google. */
+  @font-face{font-family:"Nunito"; font-weight:800; font-style:normal; font-display:swap; src:url(assets/fonts/nunito-800.woff2) format("woff2");}
+  @font-face{font-family:"Nunito"; font-weight:900; font-style:normal; font-display:swap; src:url(assets/fonts/nunito-900.woff2) format("woff2");}
+  @font-face{font-family:"Inter"; font-weight:400; font-style:normal; font-display:swap; src:url(assets/fonts/inter-400.woff2) format("woff2");}
+  @font-face{font-family:"Inter"; font-weight:500; font-style:normal; font-display:swap; src:url(assets/fonts/inter-500.woff2) format("woff2");}
+  @font-face{font-family:"Inter"; font-weight:600; font-style:normal; font-display:swap; src:url(assets/fonts/inter-600.woff2) format("woff2");}
+  @font-face{font-family:"Inter"; font-weight:700; font-style:normal; font-display:swap; src:url(assets/fonts/inter-700.woff2) format("woff2");}
+  :root{
+    --bg:#11131f; --bg-2:#151829; --surface:#191c2c; --surface-2:#20243a; --field:#0d0f19;
+    --line:#2a2f48; --line-strong:#3a4163;
+    --ink:#eef0fa; --muted:#a0a7c2; --faint:#6f7595;
+    --brand:#4d66ff; --brand-hover:#5f77ff; --brand-ink:#8a9cff; --brand-soft:rgba(77,102,255,.14);
+    --amber:#ffb400; --amber-soft:rgba(255,180,0,.12);
+    --green:#3ecf8e; --red:#ff6b6b;
+    --radius:18px;
+    --display:"Nunito",ui-rounded,system-ui,sans-serif;
+    --body:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth; scroll-padding-top:80px;}
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto;} *{animation:none !important;} }
+  body{margin:0; background:var(--bg); color:var(--ink); font:16px/1.6 var(--body);
+       -webkit-font-smoothing:antialiased;}
+  a{color:var(--brand-ink);}
+  img{max-width:100%; height:auto; display:block;}
+  .wrap{max-width:1140px; margin:0 auto; padding:0 24px;}
+  h1, h2, h3{font-family:var(--display); line-height:1.1; margin:0; letter-spacing:-.01em;}
+  h2{font-size:clamp(30px, 4vw, 42px); font-weight:900;}
+  h3{font-size:19px; font-weight:800;}
+  .eyebrow{display:inline-block; font:800 13px/1 var(--display); letter-spacing:.08em; text-transform:uppercase;
+           color:var(--amber); margin-bottom:14px;}
+  .lead{color:var(--muted); font-size:18px; max-width:620px; text-wrap:pretty;}
+  h1, h2, .hero .lead, .center .lead{text-wrap:balance;}
+  section{padding:96px 0;}
+  .center{text-align:center;} .center .lead{margin-left:auto; margin-right:auto;}
+  svg.i{width:22px; height:22px; flex:none; fill:none; stroke:currentColor; stroke-width:2;
+        stroke-linecap:round; stroke-linejoin:round;}
+
+  /* ------------------------------ nav ------------------------------ */
+  .nav{position:sticky; top:0; z-index:10; background:rgba(17,19,31,.8); backdrop-filter:blur(12px);
+       -webkit-backdrop-filter:blur(12px); border-bottom:1px solid transparent; transition:border-color .2s;}
+  .nav.scrolled{border-bottom-color:var(--line);}
+  .nav .wrap{display:flex; align-items:center; gap:28px; height:68px;}
+  .brand{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink);}
+  .brand img{width:36px; height:36px; border-radius:10px;}
+  .wordmark{font:900 24px/1 var(--display); letter-spacing:-.02em;}
+  .wordmark b{color:var(--brand-ink); font-weight:inherit;}
+  .nav .links{display:flex; gap:24px; margin-left:auto;}
+  .nav .links a{color:var(--muted); text-decoration:none; font-weight:500; font-size:15px;}
+  .nav .links a:hover{color:var(--ink);}
+
+  /* ------------------------------ buttons ------------------------------ */
+  .btn{display:inline-flex; align-items:center; justify-content:center; gap:10px; text-decoration:none;
+       font:700 16px/1 var(--body); padding:15px 22px; border-radius:12px; border:1px solid var(--line);
+       background:var(--surface-2); color:var(--ink); cursor:pointer; white-space:nowrap;
+       transition:background .15s, border-color .15s, transform .15s;}
+  .btn:hover{border-color:var(--line-strong); background:#272c46;}
+  .btn:active{transform:translateY(1px);}
+  .btn.primary{background:var(--brand); border-color:transparent; color:#fff;
+               box-shadow:0 10px 30px -8px rgba(77,102,255,.6);}
+  .btn.primary:hover{background:var(--brand-hover);}
+  .btn.sm{padding:10px 14px; font-size:14px; border-radius:10px;}
+  .btn:focus-visible, a:focus-visible{outline:2px solid var(--brand); outline-offset:3px;}
+
+  /* ------------------------------ hero ------------------------------ */
+  .hero{position:relative; padding:72px 0 40px; overflow:hidden;}
+  .hero::before{content:""; position:absolute; inset:-200px 0 auto; height:700px; z-index:-1;
+                background:radial-gradient(800px 420px at 50% 30%, rgba(77,102,255,.28), transparent 70%),
+                           radial-gradient(500px 300px at 72% 40%, rgba(255,180,0,.08), transparent 70%);}
+  .hero .wrap{text-align:center;}
+  .hero-bird{width:112px; height:112px; margin:0 auto 26px; border-radius:28px;
+             box-shadow:0 20px 50px -10px rgba(77,102,255,.55);}
+  .hero h1{font-size:clamp(44px, 7.5vw, 84px); font-weight:900; letter-spacing:-.03em;}
+  .hero h1 span{background:linear-gradient(90deg, var(--brand-ink), #b2bdff); -webkit-background-clip:text;
+                background-clip:text; color:transparent;}
+  .hero .lead{margin:22px auto 0; font-size:20px; max-width:640px;}
+  .cta{display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:34px;}
+  .meta{margin-top:16px; color:var(--faint); font-size:14px;}
+  .meta a{color:var(--muted);}
+  .pills{display:flex; flex-wrap:wrap; gap:8px 18px; justify-content:center; margin-top:26px;
+         color:var(--muted); font-size:14.5px;}
+  .pills span{display:inline-flex; align-items:center; gap:7px;}
+  .pills svg{width:17px; height:17px; color:var(--green);}
+
+  .shot{margin:64px auto 0; max-width:1060px; position:relative;}
+  .shot .frame{border-radius:16px; overflow:hidden; border:1px solid var(--line-strong);
+               box-shadow:0 40px 100px -20px rgba(0,0,0,.7), 0 0 0 8px rgba(255,255,255,.02);}
+  .shot .bar{display:flex; align-items:center; gap:7px; padding:11px 14px; background:#1c1f31;
+             border-bottom:1px solid var(--line);}
+  .shot .bar i{width:11px; height:11px; border-radius:50%; background:#3a3f5c;}
+  .shot .bar span{margin-left:12px; flex:1; max-width:340px; background:var(--field); border-radius:7px;
+                  padding:4px 10px; font:12.5px var(--mono); color:var(--faint);}
+
+  /* ------------------------------ features ------------------------------ */
+  .grid{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:18px; margin-top:52px;}
+  .card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:26px;}
+  .card .ic{display:grid; place-items:center; width:46px; height:46px; border-radius:13px;
+            background:var(--brand-soft); color:var(--brand-ink); margin-bottom:18px;}
+  .card.amber .ic{background:var(--amber-soft); color:var(--amber);}
+  .card p{color:var(--muted); margin:8px 0 0; font-size:15.5px;}
+
+  /* ------------------------------ steps ------------------------------ */
+  .steps-sec{background:var(--bg-2); border-top:1px solid var(--line); border-bottom:1px solid var(--line);}
+  .steps{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:18px; margin-top:52px;
+         counter-reset:step;}
+  .step{position:relative; padding:28px 26px 26px; background:var(--surface); border:1px solid var(--line);
+        border-radius:var(--radius);}
+  .step::before{counter-increment:step; content:counter(step); display:grid; place-items:center;
+                width:38px; height:38px; border-radius:50%; background:var(--brand); color:#fff;
+                font:900 18px/1 var(--display); margin-bottom:18px;}
+  .step p{color:var(--muted); margin:8px 0 0; font-size:15.5px;}
+  .step code{font:13.5px var(--mono); color:var(--ink); background:var(--field); padding:2px 6px; border-radius:6px;}
+
+  /* ------------------------------ filters ------------------------------ */
+  .split{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.1fr); gap:56px; align-items:center;}
+  .split ul{list-style:none; padding:0; margin:28px 0 0; display:grid; gap:12px;}
+  .split li{display:flex; gap:12px; color:var(--muted);}
+  .split li svg{color:var(--amber); margin-top:2px;}
+  .split li b{color:var(--ink); font-weight:600;}
+  .examples{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:8px 22px;}
+  .ex{display:grid; grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr); gap:12px; align-items:center;
+      padding:16px 0; border-top:1px solid var(--line);}
+  .ex:first-child{border-top:none;}
+  .ex .label{grid-column:1 / -1; font:800 12px/1 var(--display); letter-spacing:.06em; text-transform:uppercase;
+             color:var(--faint); margin-bottom:-2px;}
+  .ex .in{font:14px/1.45 var(--mono); color:var(--muted); text-decoration:line-through;
+          text-decoration-color:rgba(255,107,107,.6); overflow-wrap:anywhere;}
+  .ex .arrow{color:var(--faint); text-align:center;}
+  .ex .out{font:14px/1.45 var(--mono); color:var(--ink); overflow-wrap:anywhere;}
+  .ex .out.skip{color:var(--amber); font-family:var(--body); font-weight:600;}
+
+  /* ------------------------------ integrations ------------------------------ */
+  .logos{display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-top:40px;}
+  .logos span{padding:12px 20px; border-radius:999px; border:1px solid var(--line); background:var(--surface);
+              font:800 16px/1 var(--display); color:var(--ink);}
+
+  /* ------------------------------ download ------------------------------ */
+  .download{background:linear-gradient(180deg, var(--bg) 0%, #151a3a 100%); border-top:1px solid var(--line);}
+  .platforms{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:18px; margin-top:48px;}
+  .platform{display:flex; flex-direction:column; align-items:flex-start; gap:6px; padding:26px;
+            background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+            text-decoration:none; color:var(--ink); transition:border-color .15s, transform .15s;}
+  .platform:hover{border-color:var(--brand); transform:translateY(-2px);}
+  .platform.you{border-color:var(--brand); box-shadow:0 0 0 3px var(--brand-soft);}
+  .platform .os{font:900 22px/1.2 var(--display);}
+  .platform .req{color:var(--muted); font-size:14.5px;}
+  .platform .file{margin-top:14px; display:inline-flex; align-items:center; gap:8px; color:var(--brand-ink);
+                  font-weight:600; font-size:15px;}
+  .platform .tag{font:800 11px/1 var(--display); letter-spacing:.06em; text-transform:uppercase;
+                 color:var(--amber); min-height:11px;}
+
+  /* ------------------------------ faq ------------------------------ */
+  .faq{max-width:780px; margin:44px auto 0;}
+  details{border-bottom:1px solid var(--line);}
+  summary{cursor:pointer; list-style:none; padding:20px 0; display:flex; justify-content:space-between; gap:16px;
+          font:800 18px/1.35 var(--display);}
+  summary::-webkit-details-marker{display:none;}
+  summary::after{content:"+"; color:var(--brand-ink); font-size:24px; line-height:1; transition:transform .2s;}
+  details[open] summary::after{transform:rotate(45deg);}
+  details p{margin:0 0 20px; color:var(--muted);}
+
+  /* ------------------------------ footer ------------------------------ */
+  footer{padding:44px 0 56px; border-top:1px solid var(--line); color:var(--faint); font-size:14px;}
+  footer .wrap{display:flex; flex-wrap:wrap; gap:16px 32px; align-items:center;}
+  footer .brand{margin-right:auto;}
+  footer .brand img{width:28px; height:28px; border-radius:8px;}
+  footer .brand .wordmark{font-size:19px;}
+  footer a{color:var(--muted); text-decoration:none;}
+  footer a:hover{color:var(--ink);}
+  footer .fine{flex-basis:100%;}
+
+  @media (max-width:900px){
+    .grid, .steps, .platforms{grid-template-columns:minmax(0,1fr);}
+    .split{grid-template-columns:minmax(0,1fr); gap:36px;}
+    section{padding:72px 0;}
+  }
+  @media (max-width:640px){
+    .wrap{padding:0 16px;}
+    .nav .links{display:none;}
+    .nav .wrap{justify-content:space-between;}
+    .hero{padding-top:48px;}
+    .hero .lead{font-size:18px;}
+    .shot .bar{display:none;}
+    .ex{grid-template-columns:minmax(0,1fr);}
+    .ex .arrow{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5M12 15V3"/></symbol>
+  <symbol id="i-github" viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3.1-.3 6.4-1.5 6.4-7A5.4 5.4 0 0 0 20 4.8 5 5 0 0 0 19.9 1S18.7.7 16 2.5a13.4 13.4 0 0 0-7 0C6.3.7 5.1 1 5.1 1A5 5 0 0 0 5 4.8a5.4 5.4 0 0 0-1.5 3.7c0 5.5 3.3 6.7 6.4 7a3.4 3.4 0 0 0-.9 2.6V22"/></symbol>
+  <symbol id="i-cpu" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 24 24"><path d="M22 3H2l8 9.5V19l4 2v-8.5z"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
+  <symbol id="i-plug" viewBox="0 0 24 24"><path d="M12 22v-5M9 8V2M15 8V2M18 8v5a6 6 0 0 1-12 0V8z"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/></symbol>
+  <symbol id="i-zap" viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9z"/></symbol>
+</svg>
+
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Tellbird home"><img src="assets/icon-256.png" alt=""><span class="wordmark">tell<b>bird</b></span></a>
+    <nav class="links" aria-label="Sections">
+      <a href="#features">Features</a>
+      <a href="#setup">Setup</a>
+      <a href="#filters">Spam filters</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <a class="btn sm" href="https://github.com/LikkerLord/tellbird"><svg class="i" style="width:18px;height:18px"><use href="#i-github"/></svg>GitHub</a>
+  </div>
+</header>
+
+<main id="top">
+  <!-- ============================== hero ============================== -->
+  <section class="hero">
+    <div class="wrap">
+      <img class="hero-bird" src="assets/icon-256.png" alt="The Tellbird logo: a white bird with sound waves">
+      <h1>Your chat, <span>out loud.</span></h1>
+      <p class="lead">Tellbird reads your Twitch chat aloud with a natural-sounding voice that runs on your own computer. Free, open source, and set up in minutes.</p>
+      <div class="cta">
+        <a class="btn primary" id="heroDownload" href="#download"><svg class="i"><use href="#i-download"/></svg><span>Download Tellbird</span></a>
+        <a class="btn" href="#setup">How it works</a>
+      </div>
+      <p class="meta" id="heroMeta">Windows, macOS and Linux · <a href="https://github.com/LikkerLord/tellbird/releases/latest">all downloads</a></p>
+      <div class="pills">
+        <span><svg class="i"><use href="#i-check"/></svg>No account or API key</span>
+        <span><svg class="i"><use href="#i-check"/></svg>Voice runs locally</span>
+        <span><svg class="i"><use href="#i-check"/></svg>Free &amp; open source</span>
+      </div>
+      <div class="shot">
+        <div class="frame">
+          <div class="bar" aria-hidden="true"><i></i><i></i><i></i><span>127.0.0.1:5050</span></div>
+          <picture>
+            <source srcset="assets/panel.webp" type="image/webp">
+            <img src="assets/panel.png" width="2330" height="1345"
+                 alt="The Tellbird control panel: one chat message being read aloud, four more waiting in the queue, and buttons to skip or clear">
+          </picture>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== features ============================== -->
+  <section id="features">
+    <div class="wrap">
+      <span class="eyebrow">Why Tellbird</span>
+      <h2>Made for streamers,<br>built to stay out of your way.</h2>
+      <div class="grid">
+        <div class="card">
+          <span class="ic"><svg class="i"><use href="#i-cpu"/></svg></span>
+          <h3>Runs on your computer</h3>
+          <p>The voice is generated locally by Kyutai's Pocket TTS. No cloud service, no per-message costs, and no gaming GPU needed.</p>
+        </div>
+        <div class="card">
+          <span class="ic"><svg class="i"><use href="#i-shield"/></svg></span>
+          <h3>No login, no keys</h3>
+          <p>Enter your channel name and you're done. Tellbird just listens to your public chat. It never needs your Twitch password or a token.</p>
+        </div>
+        <div class="card amber">
+          <span class="ic"><svg class="i"><use href="#i-filter"/></svg></span>
+          <h3>Keeps spam in check</h3>
+          <p>Skips commands and bots, turns links into "link", tames "aaaaaaa", and stops copypasta floods before they reach the voice.</p>
+        </div>
+        <div class="card">
+          <span class="ic"><svg class="i"><use href="#i-list"/></svg></span>
+          <h3>You stay in control</h3>
+          <p>See what's being read and what's waiting, live. Skip a message, remove one from the queue, or clear everything.</p>
+        </div>
+        <div class="card">
+          <span class="ic"><svg class="i"><use href="#i-plug"/></svg></span>
+          <h3>Plays well with your tools</h3>
+          <p>Stream Deck buttons, Firebot and Mix It Up can skip, clear, or hand Tellbird exactly the text to speak.</p>
+        </div>
+        <div class="card">
+          <span class="ic"><svg class="i"><use href="#i-heart"/></svg></span>
+          <h3>Free and open source</h3>
+          <p>MIT licensed, with the full source on GitHub. No ads, no tracking, no premium tier.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== setup ============================== -->
+  <section class="steps-sec" id="setup">
+    <div class="wrap center">
+      <span class="eyebrow">Setup</span>
+      <h2>On air in three steps.</h2>
+      <p class="lead" style="margin-top:16px">No config files, no terminal. Everything happens in Tellbird's control panel.</p>
+      <div class="steps" style="text-align:left">
+        <div class="step">
+          <h3>Install and start</h3>
+          <p>Download Tellbird for your system and start it. The first start downloads the voice once (a few minutes), and a bird icon appears in your system tray.</p>
+        </div>
+        <div class="step">
+          <h3>Enter your channel</h3>
+          <p>Open the control panel from the tray icon, type your Twitch channel name and click <b>Save &amp; apply</b>. Test it with the Speak button.</p>
+        </div>
+        <div class="step">
+          <h3>Add it to OBS</h3>
+          <p>Capture it with <b>Desktop Audio</b>, or route it to its own source with a virtual cable like VB-CABLE or BlackHole for a separate volume slider.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== filters ============================== -->
+  <section id="filters">
+    <div class="wrap split">
+      <div>
+        <span class="eyebrow">Spam filters</span>
+        <h2>Your chat, minus the noise.</h2>
+        <p class="lead" style="margin-top:16px">Chat isn't always made for reading aloud. Tellbird cleans every message up first, and you decide how strict it is.</p>
+        <ul>
+          <li><svg class="i"><use href="#i-zap"/></svg><span><b>Commands and bots are skipped:</b> anything starting with <code>!</code>, and accounts like Nightbot or StreamElements.</span></li>
+          <li><svg class="i"><use href="#i-zap"/></svg><span><b>Chat slang is spoken properly:</b> "brb" becomes "be right back". Add your own community's words.</span></li>
+          <li><svg class="i"><use href="#i-zap"/></svg><span><b>Emotes are left out</b>, including BTTV, FFZ and 7TV ones you list.</span></li>
+          <li><svg class="i"><use href="#i-zap"/></svg><span><b>Optional extra filters:</b> per-user cooldowns, word spam, repeated messages and copypasta floods. Filters can also trigger a Firebot action, e.g. to time someone out.</span></li>
+        </ul>
+      </div>
+      <div class="examples" aria-label="Examples of what Tellbird does to chat messages">
+        <div class="ex">
+          <span class="label">Character runs</span>
+          <span class="in">nooooooooo waaaaaay</span><span class="arrow">→</span><span class="out">nooo waaay.</span>
+        </div>
+        <div class="ex">
+          <span class="label">Repeated words</span>
+          <span class="in">hype hype hype hype hype hype</span><span class="arrow">→</span><span class="out">hype hype hype.</span>
+        </div>
+        <div class="ex">
+          <span class="label">Links</span>
+          <span class="in">that clip https://clips.twitch.tv/abc was so good</span><span class="arrow">→</span><span class="out">that clip link was so good.</span>
+        </div>
+        <div class="ex">
+          <span class="label">Slang</span>
+          <span class="in">brb, gg everyone</span><span class="arrow">→</span><span class="out">be right back, good game everyone.</span>
+        </div>
+        <div class="ex">
+          <span class="label">Commands</span>
+          <span class="in">!discord</span><span class="arrow">→</span><span class="out skip">skipped</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== integrations ============================== -->
+  <section class="steps-sec">
+    <div class="wrap center">
+      <span class="eyebrow">Integrations</span>
+      <h2>Fits into your setup.</h2>
+      <p class="lead" style="margin-top:16px">Let Tellbird read chat on its own, or have the bot you already use decide what gets read, for channel point redeems, a <code>!tts</code> command, or anything else.</p>
+      <div class="logos">
+        <span>OBS Studio</span><span>Stream Deck</span><span>Firebot</span><span>Mix It Up</span><span>Any tool that can open a URL</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== download ============================== -->
+  <section class="download" id="download">
+    <div class="wrap center">
+      <span class="eyebrow">Download</span>
+      <h2>Get Tellbird.</h2>
+      <p class="lead" style="margin-top:16px" id="versionLine">Free for Windows, macOS and Linux.</p>
+      <div class="platforms" style="text-align:left">
+        <a class="platform" data-os="windows" href="https://github.com/LikkerLord/tellbird/releases/latest">
+          <span class="tag"></span>
+          <span class="os">Windows</span>
+          <span class="req">Windows 10 or 11, 64-bit</span>
+          <span class="file"><svg class="i" style="width:18px;height:18px"><use href="#i-download"/></svg>Installer (.exe)</span>
+        </a>
+        <a class="platform" data-os="mac" href="https://github.com/LikkerLord/tellbird/releases/latest">
+          <span class="tag"></span>
+          <span class="os">macOS</span>
+          <span class="req">Apple Silicon (M1 or newer)</span>
+          <span class="file"><svg class="i" style="width:18px;height:18px"><use href="#i-download"/></svg>Disk image (.dmg)</span>
+        </a>
+        <a class="platform" data-os="linux" href="https://github.com/LikkerLord/tellbird/releases/latest">
+          <span class="tag"></span>
+          <span class="os">Linux</span>
+          <span class="req">64-bit (x86_64)</span>
+          <span class="file"><svg class="i" style="width:18px;height:18px"><use href="#i-download"/></svg>AppImage</span>
+        </a>
+      </div>
+      <p class="meta">Older versions and release notes are on <a href="https://github.com/LikkerLord/tellbird/releases">GitHub</a>.
+        Used the old "Twitch TTS Bot" installer? Tellbird picks up your settings automatically.</p>
+    </div>
+  </section>
+
+  <!-- ============================== faq ============================== -->
+  <section id="faq">
+    <div class="wrap">
+      <div class="center">
+        <span class="eyebrow">FAQ</span>
+        <h2>Questions, answered.</h2>
+      </div>
+      <div class="faq">
+        <details>
+          <summary>Is Tellbird really free?</summary>
+          <p>Yes. It's open source under the MIT license, with no ads, accounts or paid features. Because the voice runs on your own computer, there are no per-message costs either.</p>
+        </details>
+        <details>
+          <summary>Does it need a powerful PC?</summary>
+          <p>No gaming GPU is needed: the voice runs on the processor. It's busy for a moment while each message is prepared, and idle the rest of the time.</p>
+        </details>
+        <details>
+          <summary>Which voices are there?</summary>
+          <p>A set of built-in English voices, such as Alba, Anna, Charles, Eve, George, Jane, Mary, Michael, Paul and Vera. You switch between them in the control panel, and the change takes effect right away.</p>
+        </details>
+        <details>
+          <summary>Windows or macOS warns me about the download. Is it safe?</summary>
+          <p>The installers aren't code-signed yet, which is why Windows SmartScreen or macOS Gatekeeper asks first. On Windows click <b>More info → Run anyway</b>. On macOS right-click the app and choose <b>Open</b>. The source code and the automated builds are public on GitHub.</p>
+        </details>
+        <details>
+          <summary>Does it work on an Intel Mac?</summary>
+          <p>Not at the moment. The macOS download is built for Apple Silicon (M1 and newer).</p>
+        </details>
+        <details>
+          <summary>Can viewers trigger it with channel points or a command?</summary>
+          <p>Yes, through Firebot, Mix It Up or a similar bot: switch Tellbird to "http" mode and let your bot send it the text to speak. The README on GitHub shows the exact setup.</p>
+        </details>
+        <details>
+          <summary>Is my chat sent anywhere?</summary>
+          <p>No. Tellbird reads your public Twitch chat and turns it into speech on your computer. Nothing is uploaded, and there's no tracking.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="assets/icon-256.png" alt=""><span class="wordmark">tell<b>bird</b></span></a>
+    <a href="https://github.com/LikkerLord/tellbird">GitHub</a>
+    <a href="https://github.com/LikkerLord/tellbird/releases">Releases</a>
+    <a href="https://github.com/LikkerLord/tellbird/issues">Report a problem</a>
+    <a href="https://github.com/LikkerLord/tellbird/blob/main/LICENSE">MIT License</a>
+    <p class="fine">Tellbird is an independent open-source project and is not affiliated with or endorsed by Twitch. Voice generation by Kyutai's Pocket TTS.</p>
+  </div>
+</footer>
+
+<script>
+  // Sticky nav gets a border once the page is scrolled.
+  const nav = document.getElementById('nav');
+  addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 8), { passive: true });
+
+  // Downloads: point each platform at the file in the latest GitHub release,
+  // and highlight the visitor's own system. Without JavaScript (or if GitHub's
+  // API is unreachable) every link still goes to the latest release page.
+  const REPO = 'LikkerLord/tellbird';
+  const FILES = { windows: /\.exe$/i, mac: /\.dmg$/i, linux: /\.AppImage$/i };
+  const NAMES = { windows: 'Windows', mac: 'macOS', linux: 'Linux' };
+
+  function detectOS(){
+    const ua = navigator.userAgent;
+    if (/Android|iPhone|iPad|iPod/i.test(ua)) return null;
+    if (/Windows/i.test(ua)) return 'windows';
+    if (/Macintosh|Mac OS X/i.test(ua)) return 'mac';
+    if (/Linux|X11/i.test(ua)) return 'linux';
+    return null;
+  }
+
+  const os = detectOS();
+  if (os){
+    const card = document.querySelector(`.platform[data-os="${os}"]`);
+    card.classList.add('you');
+    card.querySelector('.tag').textContent = 'Your system';
+    document.querySelector('#heroDownload span').textContent = `Download for ${NAMES[os]}`;
+  }
+
+  fetch(`https://api.github.com/repos/${REPO}/releases/latest`)
+    .then(r => r.ok ? r.json() : Promise.reject(r.status))
+    .then(release => {
+      const version = release.tag_name.replace(/^v/, '');
+      const date = new Date(release.published_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+      document.getElementById('versionLine').textContent = `Version ${version}, released ${date}. Free for Windows, macOS and Linux.`;
+      for (const [key, pattern] of Object.entries(FILES)){
+        const asset = release.assets.find(a => pattern.test(a.name));
+        if (!asset) continue;
+        document.querySelector(`.platform[data-os="${key}"]`).href = asset.browser_download_url;
+        if (key === os) document.getElementById('heroDownload').href = asset.browser_download_url;
+      }
+      document.getElementById('heroMeta').firstChild.textContent = `Version ${version} · `;
+    })
+    .catch(() => { /* links already point at the release page */ });
+</script>
+</body>
+</html>
