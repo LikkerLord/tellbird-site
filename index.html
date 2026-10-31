@@ -181,6 +181,18 @@
   details[open] summary::after{transform:rotate(45deg);}
   details p{margin:0 0 20px; color:var(--muted);}
 
+  /* ------------------------------ thanks ------------------------------ */
+  .thanks-sec{background:var(--bg-2); border-top:1px solid var(--line);}
+  .people{display:flex; flex-wrap:wrap; justify-content:center; gap:18px; margin-top:48px;}
+  .person{display:flex; align-items:center; gap:20px; width:min(100%, 460px); padding:22px;
+          background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);}
+  .person .logo{display:block; width:96px; height:96px; flex:none; border-radius:14px; background:#fff; overflow:hidden;}
+  .person .role{color:var(--muted); margin:6px 0 10px; font-size:15px;}
+  .person .social{display:inline-flex; align-items:center; gap:7px; font-weight:600; font-size:15px;
+                  text-decoration:none;}
+  .person .social:hover{text-decoration:underline;}
+  .person .social svg{width:18px; height:18px;}
+
   /* ------------------------------ footer ------------------------------ */
   footer{padding:44px 0 56px; border-top:1px solid var(--line); color:var(--faint); font-size:14px;}
   footer .wrap{display:flex; flex-wrap:wrap; gap:16px 32px; align-items:center;}
@@ -198,6 +210,7 @@
   }
   @media (max-width:640px){
     .wrap{padding:0 16px;}
+    .person{flex-direction:column; text-align:center;}
     .nav .links{display:none;}
     .nav .wrap{justify-content:space-between;}
     .hero{padding-top:48px;}
@@ -220,6 +233,7 @@
   <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
   <symbol id="i-plug" viewBox="0 0 24 24"><path d="M12 22v-5M9 8V2M15 8V2M18 8v5a6 6 0 0 1-12 0V8z"/></symbol>
   <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/></symbol>
+  <symbol id="i-twitch" viewBox="0 0 24 24"><path d="M21 2H3v16h5v4l4-4h5l4-4V2zM11 11V7M16 11V7"/></symbol>
   <symbol id="i-zap" viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9z"/></symbol>
 </svg>
 
@@ -230,6 +244,7 @@
       <a href="#features">Features</a>
       <a href="#setup">Setup</a>
       <a href="#filters">Spam filters</a>
+      <a href="#thanks">Thanks</a>
       <a href="#faq">FAQ</a>
     </nav>
     <a class="btn sm" href="https://github.com/LikkerLord/tellbird"><svg class="i" style="width:18px;height:18px"><use href="#i-github"/></svg>GitHub</a>
@@ -408,6 +423,41 @@
       </div>
       <p class="meta">Older versions and release notes are on <a href="https://github.com/LikkerLord/tellbird/releases">GitHub</a>.
         Used the old "Twitch TTS Bot" installer? Tellbird picks up your settings automatically.</p>
+    </div>
+  </section>
+
+  <!-- ============================== thanks ============================== -->
+  <section class="thanks-sec" id="thanks">
+    <div class="wrap">
+      <div class="center">
+        <span class="eyebrow">Thanks</span>
+        <h2>Built with help from the community</h2>
+        <p class="lead">Tellbird wouldn't be what it is without the people who shaped it, tested it and kept asking for "just one more thing".</p>
+      </div>
+      <div class="people">
+        <div class="person">
+          <picture class="logo">
+            <source srcset="assets/thanks/designedbyjoe.webp" type="image/webp">
+            <img src="assets/thanks/designedbyjoe.png" alt="DesignedByJoe logo" width="96" height="96" loading="lazy">
+          </picture>
+          <div>
+            <h3>DesignedByJoe</h3>
+            <p class="role">Helped shape the initial requirements and does a whole lot of testing</p>
+            <a class="social" href="https://www.twitch.tv/designedbyjoe"><svg class="i"><use href="#i-twitch"/></svg>twitch.tv/designedbyjoe</a>
+          </div>
+        </div>
+        <div class="person">
+          <picture class="logo">
+            <source srcset="assets/thanks/nonstickocean.webp" type="image/webp">
+            <img src="assets/thanks/nonstickocean.jpg" alt="NonStickOcean's profile picture" width="96" height="96" loading="lazy">
+          </picture>
+          <div>
+            <h3>NonStickOcean</h3>
+            <p class="role">Helped testing and finding some bugs</p>
+            <a class="social" href="https://www.twitch.tv/nonstickocean"><svg class="i"><use href="#i-twitch"/></svg>twitch.tv/nonstickocean</a>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 

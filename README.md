@@ -9,6 +9,7 @@ locally, run `python3 -m http.server` in this folder and open
 
 - `assets/panel.webp` / `panel.png`: the app screenshot in the hero
 - `assets/og-image.png`: preview image when the link is shared
+- `assets/thanks/`: logos for the "Thanks" section (small squares, WebP plus a PNG or JPG fallback)
 - `assets/fonts/`: self-hosted Nunito and Inter (SIL Open Font License), so
   visitors' browsers never contact Google Fonts
 - `CNAME`: tells GitHub Pages the custom domain
